@@ -200,7 +200,7 @@ export default function Index() {
                       <div className="h-px w-20 bg-gradient-to-l from-transparent to-red-500" />
                     </div>
                     <h2 className="text-3xl font-bold text-white uppercase tracking-[0.3em]">
-                      ДЕПАРТАМЕНТ БЕЗОПАСНОСТИ
+                      КОРПОРАТИВНЫЙ ХАКИНГ
                     </h2>
                     <p className="text-sm text-red-500 uppercase tracking-widest font-mono">
                       OFFENSIVE SECURITY DIVISION
