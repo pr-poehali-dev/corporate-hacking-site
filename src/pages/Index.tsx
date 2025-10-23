@@ -6,31 +6,18 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import Icon from '@/components/ui/icon';
 
 const ParticleBackground = () => {
-  const [particles, setParticles] = useState<Array<{ x: number; y: number; delay: number }>>([]);
-
-  useEffect(() => {
-    const particleArray = Array.from({ length: 50 }, (_, i) => ({
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      delay: Math.random() * 5
-    }));
-    setParticles(particleArray);
-  }, []);
-
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0A0E27] via-[#1a0e3e] to-[#0A0E27]" />
-      {particles.map((particle, i) => (
-        <div
-          key={i}
-          className="absolute w-1 h-1 bg-cyan rounded-full animate-pulse-glow"
-          style={{
-            left: `${particle.x}%`,
-            top: `${particle.y}%`,
-            animationDelay: `${particle.delay}s`
-          }}
-        />
-      ))}
+      <div className="absolute inset-0 bg-[#0A0E27]" />
+      <div className="absolute inset-0" style={{
+        backgroundImage: `
+          linear-gradient(0deg, rgba(0,255,225,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0,255,225,0.03) 1px, transparent 1px)
+        `,
+        backgroundSize: '50px 50px'
+      }} />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-pink/30 to-transparent" />
     </div>
   );
 };
@@ -113,7 +100,7 @@ export default function Index() {
             <GlitchBorder className="w-full max-w-4xl">
               <div className="glass-morphism p-12 rounded-lg">
                 <div className="text-center space-y-6">
-                  <h2 className="text-6xl font-black text-cyan text-glow animate-float">
+                  <h2 className="text-6xl font-black text-cyan uppercase tracking-widest">
                     КОРПОРАТИВНЫЙ ХАКИНГ
                   </h2>
                   <p className="text-xl text-gray-300 max-w-2xl mx-auto">
