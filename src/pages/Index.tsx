@@ -128,6 +128,8 @@ export default function Index() {
   const [activeSection, setActiveSection] = useState('home');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [employeeId, setEmployeeId] = useState('');
+  const [showError, setShowError] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
 
   const services = [
     { icon: 'Shield', title: 'Penetration Testing', description: 'Моделирование реальных атак для выявления слабых мест' },
@@ -156,11 +158,51 @@ export default function Index() {
   const handleLogin = () => {
     if (employeeId.trim()) {
       setIsAuthenticated(true);
+    } else {
+      setShowError(true);
+      setTimeout(() => {
+        setShowError(false);
+      }, 3000);
     }
   };
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowIntro(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="min-h-screen relative">
+      {showIntro && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-gradient-radial from-transparent via-red-500/30 to-black animate-pulse" 
+                 style={{ width: '300px', height: '300px', filter: 'blur(40px)' }} />
+            <div 
+              className="relative w-64 h-64 rounded-full bg-black border-4 border-red-500 animate-spin-slow"
+              style={{
+                boxShadow: `
+                  0 0 60px rgba(255, 0, 0, 0.8),
+                  0 0 120px rgba(255, 0, 0, 0.5),
+                  inset 0 0 60px rgba(255, 0, 0, 0.4),
+                  inset 0 0 120px rgba(0, 0, 0, 1)
+                `,
+              }}
+            >
+              <div className="absolute inset-8 rounded-full bg-black border-2 border-red-400" 
+                   style={{ boxShadow: 'inset 0 0 40px rgba(255, 0, 0, 0.6)' }} />
+              <div className="absolute inset-16 rounded-full bg-black" 
+                   style={{ boxShadow: 'inset 0 0 30px rgba(0, 0, 0, 1)' }} />
+            </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-500 text-2xl font-bold uppercase tracking-[0.3em] animate-pulse">
+              ECLIPSE
+            </div>
+          </div>
+        </div>
+      )}
+      
       <ParticleBackground />
 
       <nav className="fixed top-0 left-0 right-0 z-50 glass-morphism">
@@ -273,28 +315,63 @@ export default function Index() {
               </h2>
               
               {!isAuthenticated ? (
-                <GlitchBorder>
-                  <div className="glass-morphism p-12 rounded-lg">
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-center mb-8">
-                        <Icon name="Lock" className="text-red-500" size={64} />
+                <div className="relative">
+                  <GlitchBorder>
+                    <div 
+                      className="glass-morphism p-12 rounded-lg transition-all duration-700 ease-in-out"
+                      style={{
+                        opacity: showError ? 0 : 1,
+                        transform: showError ? 'scale(0.9)' : 'scale(1)',
+                        pointerEvents: showError ? 'none' : 'auto'
+                      }}
+                    >
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-center mb-8">
+                          <Icon name="Lock" className="text-red-500" size={64} />
+                        </div>
+                        <h3 className="text-xl font-bold text-center text-white uppercase tracking-widest">Идентификация</h3>
+                        <Input
+                          placeholder="Employee ID"
+                          value={employeeId}
+                          onChange={(e) => setEmployeeId(e.target.value)}
+                          className="bg-black/70 border-red-500/50 text-white placeholder:text-gray-600 text-center text-xl font-mono"
+                        />
+                        <Button
+                          onClick={handleLogin}
+                          className="w-full bg-red-600 text-white hover:bg-red-700 transition-all font-bold text-lg py-6"
+                        >
+                          ВОЙТИ В СИСТЕМУ
+                        </Button>
                       </div>
-                      <h3 className="text-xl font-bold text-center text-white uppercase tracking-widest">Идентификация</h3>
-                      <Input
-                        placeholder="Employee ID"
-                        value={employeeId}
-                        onChange={(e) => setEmployeeId(e.target.value)}
-                        className="bg-black/70 border-red-500/50 text-white placeholder:text-gray-600 text-center text-xl font-mono"
-                      />
-                      <Button
-                        onClick={handleLogin}
-                        className="w-full bg-red-600 text-white hover:bg-red-700 transition-all font-bold text-lg py-6"
-                      >
-                        ВОЙТИ В СИСТЕМУ
-                      </Button>
                     </div>
-                  </div>
-                </GlitchBorder>
+                  </GlitchBorder>
+                  
+                  {showError && (
+                    <div 
+                      className="absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out"
+                      style={{
+                        opacity: showError ? 1 : 0,
+                        transform: showError ? 'scale(1)' : 'scale(0.9)'
+                      }}
+                    >
+                      <GlitchBorder>
+                        <div className="glass-morphism p-12 rounded-lg">
+                          <div className="text-center space-y-6">
+                            <div className="flex items-center justify-center animate-glitch">
+                              <Icon name="AlertTriangle" className="text-red-500" size={80} />
+                            </div>
+                            <p className="text-xl font-bold text-red-500 uppercase tracking-wider animate-pulse">
+                              ОШИБКА ДОСТУПА
+                            </p>
+                            <p className="text-white text-sm">
+                              Пожалуйста, введите корректные данные
+                            </p>
+                          </div>
+                        </div>
+                      </GlitchBorder>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="space-y-6">
                   <div className="flex justify-between items-center mb-8">
