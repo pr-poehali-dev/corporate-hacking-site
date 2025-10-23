@@ -6,18 +6,47 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import Icon from '@/components/ui/icon';
 
 const ParticleBackground = () => {
+  const [matrixColumns, setMatrixColumns] = useState<Array<{ delay: number; duration: number; left: number }>>([]);
+
+  useEffect(() => {
+    const columns = Array.from({ length: 20 }, (_, i) => ({
+      delay: Math.random() * 5,
+      duration: 10 + Math.random() * 10,
+      left: (i * 5) + Math.random() * 3
+    }));
+    setMatrixColumns(columns);
+  }, []);
+
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      <div className="absolute inset-0 bg-[#0A0E27]" />
+      <div className="absolute inset-0 bg-[#000000]" />
       <div className="absolute inset-0" style={{
         backgroundImage: `
-          linear-gradient(0deg, rgba(0,255,225,0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(0,255,225,0.03) 1px, transparent 1px)
+          linear-gradient(0deg, rgba(0,255,225,0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0,255,225,0.02) 1px, transparent 1px)
         `,
         backgroundSize: '50px 50px'
       }} />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan/30 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-pink/30 to-transparent" />
+      {matrixColumns.map((col, i) => (
+        <div
+          key={i}
+          className="absolute top-0 w-px h-full opacity-20"
+          style={{
+            left: `${col.left}%`,
+            background: 'linear-gradient(180deg, transparent, #00FFE1, transparent)',
+            animation: `matrix-fall ${col.duration}s linear infinite`,
+            animationDelay: `${col.delay}s`
+          }}
+        />
+      ))}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes matrix-fall {
+          0% { transform: translateY(-100%); opacity: 0; }
+          10% { opacity: 0.2; }
+          90% { opacity: 0.2; }
+          100% { transform: translateY(100vh); opacity: 0; }
+        }
+      `}} />
     </div>
   );
 };
