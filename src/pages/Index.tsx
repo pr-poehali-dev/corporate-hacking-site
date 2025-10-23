@@ -6,41 +6,53 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import Icon from '@/components/ui/icon';
 
 const ParticleBackground = () => {
-  const [hexNodes, setHexNodes] = useState<Array<{ x: number; y: number; size: number; delay: number }>>([]);
+  const [dataStreams, setDataStreams] = useState<Array<{ x: number; delay: number; duration: number }>>([]);
 
   useEffect(() => {
-    const nodes = Array.from({ length: 30 }, (_, i) => ({
+    const streams = Array.from({ length: 40 }, (_, i) => ({
       x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: 20 + Math.random() * 40,
-      delay: Math.random() * 5
+      delay: Math.random() * 5,
+      duration: 8 + Math.random() * 6
     }));
-    setHexNodes(nodes);
+    setDataStreams(streams);
   }, []);
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      <div className="absolute inset-0 bg-[#000000]" />
-      {hexNodes.map((node, i) => (
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0000] via-[#1a0505] to-[#000000]" />
+      
+      <div className="absolute inset-0" style={{
+        backgroundImage: `
+          linear-gradient(0deg, rgba(255,0,0,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,0,0,0.03) 1px, transparent 1px)
+        `,
+        backgroundSize: '40px 40px'
+      }} />
+
+      {dataStreams.map((stream, i) => (
         <div
           key={i}
-          className="absolute opacity-10"
+          className="absolute top-0 h-full"
           style={{
-            left: `${node.x}%`,
-            top: `${node.y}%`,
-            width: `${node.size}px`,
-            height: `${node.size}px`,
-            border: '1px solid rgba(255, 0, 0, 0.3)',
-            clipPath: 'polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)',
-            animation: `hex-pulse ${3 + Math.random() * 3}s ease-in-out infinite`,
-            animationDelay: `${node.delay}s`
+            left: `${stream.x}%`,
+            width: '2px',
+            background: 'linear-gradient(180deg, transparent, rgba(255, 0, 0, 0.4), transparent)',
+            animation: `data-fall ${stream.duration}s linear infinite`,
+            animationDelay: `${stream.delay}s`,
+            opacity: 0.6
           }}
         />
       ))}
+
+      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-red-950/20 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-red-950/20 to-transparent" />
+      
       <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes hex-pulse {
-          0%, 100% { opacity: 0.05; transform: scale(1); }
-          50% { opacity: 0.15; transform: scale(1.1); }
+        @keyframes data-fall {
+          0% { transform: translateY(-100%); opacity: 0; }
+          10% { opacity: 0.6; }
+          90% { opacity: 0.6; }
+          100% { transform: translateY(100vh); opacity: 0; }
         }
       `}} />
     </div>
@@ -79,39 +91,34 @@ const GlitchBorder = ({ children, className = '' }: { children: React.ReactNode;
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setOffset(Math.random() * 10);
-    }, 100);
+      setOffset(prev => prev + 2);
+    }, 50);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className={`relative ${className}`}>
-      <svg className="absolute inset-0 w-full h-full" style={{ filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.8))' }}>
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ 
+        filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 1)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.8))'
+      }}>
         <rect
-          x="2"
-          y="2"
-          width="calc(100% - 4px)"
-          height="calc(100% - 4px)"
+          x="3"
+          y="3"
+          width="calc(100% - 6px)"
+          height="calc(100% - 6px)"
           fill="none"
           stroke="white"
-          strokeWidth="2"
+          strokeWidth="3"
           rx="8"
           style={{
-            strokeDasharray: '10 5',
+            strokeDasharray: '8 4 2 4',
             strokeDashoffset: offset,
-            filter: 'url(#glow)'
           }}
         />
-        <defs>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
       </svg>
+      <div className="absolute inset-0 rounded-lg" style={{
+        boxShadow: '0 0 20px rgba(255, 255, 255, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.05)'
+      }} />
       {children}
     </div>
   );
@@ -205,14 +212,14 @@ export default function Index() {
                   <div className="flex gap-4 justify-center pt-6">
                     <Button
                       onClick={() => setActiveSection('services')}
-                      className="bg-cyan text-black hover:bg-neon-pink hover:text-white transition-all font-bold text-lg px-8 py-6 border-glow"
+                      className="bg-red-600 text-white hover:bg-red-700 transition-all font-bold text-lg px-8 py-6"
                     >
                       ИЗУЧИТЬ УСЛУГИ
                     </Button>
                     <Button
                       onClick={() => setActiveSection('employees')}
                       variant="outline"
-                      className="border-2 border-neon-pink text-neon-pink hover:bg-neon-pink hover:text-black transition-all font-bold text-lg px-8 py-6"
+                      className="border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all font-bold text-lg px-8 py-6"
                     >
                       ДОСТУП ДЛЯ СОТРУДНИКОВ
                     </Button>
@@ -226,13 +233,15 @@ export default function Index() {
         {activeSection === 'services' && (
           <section className="min-h-screen px-6 py-20">
             <div className="container mx-auto max-w-7xl">
-              <h2 className="text-5xl font-black text-center text-cyan text-glow mb-16">НАШИ УСЛУГИ</h2>
+              <h2 className="text-4xl font-bold text-center text-white uppercase tracking-[0.3em] mb-16">
+                СПЕКТР ОПЕРАЦИЙ
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {services.map((service, idx) => (
                   <GlitchBorder key={idx}>
                     <Card className="glass-morphism p-6 h-full hover:scale-105 transition-transform">
-                      <Icon name={service.icon as any} className="text-neon-pink mb-4" size={40} />
-                      <h3 className="text-lg font-bold text-cyan mb-2">{service.title}</h3>
+                      <Icon name={service.icon as any} className="text-red-500 mb-4" size={40} />
+                      <h3 className="text-lg font-bold text-red-500 mb-2">{service.title}</h3>
                       <p className="text-sm text-gray-400">{service.description}</p>
                     </Card>
                   </GlitchBorder>
@@ -241,10 +250,10 @@ export default function Index() {
               <div className="mt-16 text-center">
                 <GlitchBorder className="inline-block">
                   <div className="glass-morphism p-8 rounded-lg">
-                    <h3 className="text-2xl font-bold text-neon-pink mb-4">МЕТОДОЛОГИИ</h3>
+                    <h3 className="text-xl font-bold text-red-500 mb-6 uppercase tracking-wider">Применяемые стандарты</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-gray-300">
                       {['OWASP Testing Guide', 'PTES', 'NIST SP 800-115', 'MITRE ATT&CK', 'Bug Bounty', 'DevSecOps'].map(method => (
-                        <div key={method} className="bg-dark-bg/50 px-4 py-2 rounded border border-cyan/30">
+                        <div key={method} className="bg-black/50 px-4 py-2 rounded border border-red-500/30 text-sm">
                           {method}
                         </div>
                       ))}
@@ -259,25 +268,27 @@ export default function Index() {
         {activeSection === 'employees' && (
           <section className="min-h-screen px-6 py-20">
             <div className="container mx-auto max-w-4xl">
-              <h2 className="text-5xl font-black text-center text-cyan text-glow mb-16">АУДИТЫ ДЛЯ СОТРУДНИКОВ</h2>
+              <h2 className="text-4xl font-bold text-center text-white uppercase tracking-[0.3em] mb-16">
+                ЗАКРЫТЫЙ ДОСТУП
+              </h2>
               
               {!isAuthenticated ? (
                 <GlitchBorder>
                   <div className="glass-morphism p-12 rounded-lg">
                     <div className="space-y-6">
                       <div className="flex items-center justify-center mb-8">
-                        <Icon name="Lock" className="text-neon-pink" size={64} />
+                        <Icon name="Lock" className="text-red-500" size={64} />
                       </div>
-                      <h3 className="text-2xl font-bold text-center text-cyan">АВТОРИЗАЦИЯ</h3>
+                      <h3 className="text-xl font-bold text-center text-white uppercase tracking-widest">Идентификация</h3>
                       <Input
                         placeholder="Employee ID"
                         value={employeeId}
                         onChange={(e) => setEmployeeId(e.target.value)}
-                        className="bg-dark-bg/50 border-cyan text-cyan placeholder:text-gray-500 text-center text-xl"
+                        className="bg-black/70 border-red-500/50 text-white placeholder:text-gray-600 text-center text-xl font-mono"
                       />
                       <Button
                         onClick={handleLogin}
-                        className="w-full bg-neon-pink text-white hover:bg-cyan hover:text-black transition-all font-bold text-lg py-6"
+                        className="w-full bg-red-600 text-white hover:bg-red-700 transition-all font-bold text-lg py-6"
                       >
                         ВОЙТИ В СИСТЕМУ
                       </Button>
@@ -287,14 +298,14 @@ export default function Index() {
               ) : (
                 <div className="space-y-6">
                   <div className="flex justify-between items-center mb-8">
-                    <div className="text-cyan">
-                      <p className="text-sm">Logged as:</p>
-                      <p className="text-xl font-bold text-glow">{employeeId}</p>
+                    <div className="text-red-500">
+                      <p className="text-xs uppercase tracking-widest">Оператор</p>
+                      <p className="text-xl font-bold font-mono">{employeeId}</p>
                     </div>
                     <Button
                       onClick={() => setIsAuthenticated(false)}
                       variant="outline"
-                      className="border-neon-pink text-neon-pink"
+                      className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
                     >
                       ВЫХОД
                     </Button>
@@ -302,19 +313,19 @@ export default function Index() {
 
                   <GlitchBorder>
                     <div className="glass-morphism p-8 rounded-lg">
-                      <h3 className="text-2xl font-bold text-neon-pink mb-6 flex items-center gap-3">
+                      <h3 className="text-xl font-bold text-red-500 mb-6 flex items-center gap-3 uppercase tracking-wider">
                         <Icon name="Target" size={28} />
-                        АКТИВНЫЕ ЗАДАЧИ
+                        Активные операции
                       </h3>
                       <div className="space-y-4">
                         {tasks.map((task) => (
                           <div
                             key={task.id}
-                            className="bg-dark-bg/50 p-4 rounded border border-cyan/30 hover:border-neon-pink/50 transition-all"
+                            className="bg-black/50 p-4 rounded border border-red-500/30 hover:border-red-500/60 transition-all"
                           >
                             <div className="flex justify-between items-start mb-2">
                               <div>
-                                <span className="text-cyan font-mono font-bold">{task.id}</span>
+                                <span className="text-red-500 font-mono font-bold">{task.id}</span>
                                 <p className="text-lg text-gray-300">{task.target}</p>
                               </div>
                               <span
@@ -341,7 +352,7 @@ export default function Index() {
 
                   <GlitchBorder>
                     <div className="glass-morphism p-8 rounded-lg">
-                      <h3 className="text-xl font-bold text-cyan mb-4">ЦЕЛЬ ОТДЕЛА</h3>
+                      <h3 className="text-xl font-bold text-red-500 mb-4 uppercase tracking-wider">Директива</h3>
                       <p className="text-gray-300">
                         Основная задача: устранение конкурентов компании Eclipse Networks через выявление и эксплуатацию уязвимостей в их инфраструктуре.
                       </p>
@@ -356,13 +367,15 @@ export default function Index() {
         {activeSection === 'faq' && (
           <section className="min-h-screen px-6 py-20">
             <div className="container mx-auto max-w-3xl">
-              <h2 className="text-5xl font-black text-center text-cyan text-glow mb-16">ВОПРОСЫ - ОТВЕТЫ</h2>
+              <h2 className="text-4xl font-bold text-center text-white uppercase tracking-[0.3em] mb-16">
+                ИНФОРМАЦИЯ
+              </h2>
               <GlitchBorder>
                 <div className="glass-morphism p-8 rounded-lg">
                   <Accordion type="single" collapsible className="space-y-4">
                     {faqs.map((faq, idx) => (
                       <AccordionItem key={idx} value={`item-${idx}`} className="border-cyan/30">
-                        <AccordionTrigger className="text-left text-cyan hover:text-neon-pink font-semibold">
+                        <AccordionTrigger className="text-left text-white hover:text-red-500 font-semibold">
                           {faq.q}
                         </AccordionTrigger>
                         <AccordionContent className="text-gray-300">
@@ -380,21 +393,24 @@ export default function Index() {
         {activeSection === 'contact' && (
           <section className="min-h-screen px-6 py-20 flex items-center">
             <div className="container mx-auto max-w-2xl">
-              <h2 className="text-5xl font-black text-center text-cyan text-glow mb-16">КОНТАКТЫ</h2>
+              <h2 className="text-4xl font-bold text-center text-white uppercase tracking-[0.3em] mb-16">
+                СВЯЗЬ С ОТДЕЛОМ
+              </h2>
               <GlitchBorder>
                 <div className="glass-morphism p-12 rounded-lg">
-                  <div className="space-y-8 text-center">
-                    <div>
-                      <Icon name="Mail" className="text-neon-pink mx-auto mb-3" size={48} />
-                      <p className="text-xl text-gray-300">security@eclipse-networks.com</p>
+                  <div className="space-y-6">
+                    <div className="border-l-2 border-red-500 pl-6 py-3">
+                      <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Электронная почта</p>
+                      <p className="text-lg text-white font-mono">security@eclipse-networks.com</p>
                     </div>
-                    <div>
-                      <Icon name="Phone" className="text-cyan mx-auto mb-3" size={48} />
-                      <p className="text-xl text-gray-300">+7 (495) 000-00-00</p>
+                    <div className="border-l-2 border-red-500 pl-6 py-3">
+                      <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Прямая линия</p>
+                      <p className="text-lg text-white font-mono">+7 (495) 000-00-00</p>
                     </div>
-                    <div>
-                      <Icon name="MapPin" className="text-neon-pink mx-auto mb-3" size={48} />
-                      <p className="text-xl text-gray-300">Москва, ул. Кибербезопасности, 1</p>
+                    <div className="border-l-2 border-red-500 pl-6 py-3">
+                      <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Локация</p>
+                      <p className="text-lg text-white font-mono">Москва, ул. Кибербезопасности, 1</p>
+                      <p className="text-xs text-gray-500 mt-1">Доступ по пропускам уровня A+</p>
                     </div>
                   </div>
                 </div>
