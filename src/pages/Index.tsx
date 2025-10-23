@@ -6,55 +6,112 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import Icon from '@/components/ui/icon';
 
 const ParticleBackground = () => {
-  const [matrixColumns, setMatrixColumns] = useState<Array<{ delay: number; duration: number; left: number }>>([]);
+  const [hexNodes, setHexNodes] = useState<Array<{ x: number; y: number; size: number; delay: number }>>([]);
 
   useEffect(() => {
-    const columns = Array.from({ length: 20 }, (_, i) => ({
-      delay: Math.random() * 5,
-      duration: 10 + Math.random() * 10,
-      left: (i * 5) + Math.random() * 3
+    const nodes = Array.from({ length: 30 }, (_, i) => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: 20 + Math.random() * 40,
+      delay: Math.random() * 5
     }));
-    setMatrixColumns(columns);
+    setHexNodes(nodes);
   }, []);
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
       <div className="absolute inset-0 bg-[#000000]" />
-      <div className="absolute inset-0" style={{
-        backgroundImage: `
-          linear-gradient(0deg, rgba(0,255,225,0.02) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(0,255,225,0.02) 1px, transparent 1px)
-        `,
-        backgroundSize: '50px 50px'
-      }} />
-      {matrixColumns.map((col, i) => (
+      {hexNodes.map((node, i) => (
         <div
           key={i}
-          className="absolute top-0 w-px h-full opacity-20"
+          className="absolute opacity-10"
           style={{
-            left: `${col.left}%`,
-            background: 'linear-gradient(180deg, transparent, #00FFE1, transparent)',
-            animation: `matrix-fall ${col.duration}s linear infinite`,
-            animationDelay: `${col.delay}s`
+            left: `${node.x}%`,
+            top: `${node.y}%`,
+            width: `${node.size}px`,
+            height: `${node.size}px`,
+            border: '1px solid rgba(255, 0, 0, 0.3)',
+            clipPath: 'polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)',
+            animation: `hex-pulse ${3 + Math.random() * 3}s ease-in-out infinite`,
+            animationDelay: `${node.delay}s`
           }}
         />
       ))}
       <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes matrix-fall {
-          0% { transform: translateY(-100%); opacity: 0; }
-          10% { opacity: 0.2; }
-          90% { opacity: 0.2; }
-          100% { transform: translateY(100vh); opacity: 0; }
+        @keyframes hex-pulse {
+          0%, 100% { opacity: 0.05; transform: scale(1); }
+          50% { opacity: 0.15; transform: scale(1.1); }
         }
       `}} />
     </div>
   );
 };
 
+const BlackHoleLogo = () => {
+  const [rotation, setRotation] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRotation(prev => (prev + 1) % 360);
+    }, 30);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="relative w-12 h-12 cursor-pointer group">
+      <div className="absolute inset-0 rounded-full bg-gradient-radial from-transparent via-red-500/20 to-black animate-pulse-glow" />
+      <div 
+        className="absolute inset-2 rounded-full bg-black border-2 border-red-500"
+        style={{
+          boxShadow: `0 0 20px rgba(255, 0, 0, 0.5), inset 0 0 20px rgba(255, 0, 0, 0.3)`,
+          transform: `rotate(${rotation}deg)`
+        }}
+      />
+      <div className="absolute inset-4 rounded-full bg-black" style={{
+        boxShadow: 'inset 0 0 10px rgba(0, 0, 0, 1)'
+      }} />
+    </div>
+  );
+};
+
 const GlitchBorder = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => {
+  const [offset, setOffset] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOffset(Math.random() * 10);
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className={`relative ${className}`}>
-      <div className="absolute inset-0 border-2 border-cyan animate-border rounded-lg border-glow" />
+      <svg className="absolute inset-0 w-full h-full" style={{ filter: 'drop-shadow(0 0 10px rgba(255, 255, 255, 0.8))' }}>
+        <rect
+          x="2"
+          y="2"
+          width="calc(100% - 4px)"
+          height="calc(100% - 4px)"
+          fill="none"
+          stroke="white"
+          strokeWidth="2"
+          rx="8"
+          style={{
+            strokeDasharray: '10 5',
+            strokeDashoffset: offset,
+            filter: 'url(#glow)'
+          }}
+        />
+        <defs>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
       {children}
     </div>
   );
@@ -103,8 +160,8 @@ export default function Index() {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Icon name="Shield" className="text-cyan text-glow" size={32} />
-              <h1 className="text-2xl font-bold text-cyan text-glow">ECLIPSE NETWORKS</h1>
+              <BlackHoleLogo />
+              <h1 className="text-2xl font-bold text-white">ECLIPSE NETWORKS</h1>
             </div>
             <div className="flex gap-6">
               {['home', 'services', 'employees', 'faq', 'contact'].map((section) => (
@@ -129,11 +186,21 @@ export default function Index() {
             <GlitchBorder className="w-full max-w-4xl">
               <div className="glass-morphism p-12 rounded-lg">
                 <div className="text-center space-y-6">
-                  <h2 className="text-6xl font-black text-cyan uppercase tracking-widest">
-                    КОРПОРАТИВНЫЙ ХАКИНГ
-                  </h2>
-                  <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                    Отдел информационной безопасности Eclipse Networks. Тестирование защищённости корпоративных систем для предотвращения реальных атак.
+                  <div className="space-y-2 mb-8">
+                    <div className="flex items-center justify-center gap-3 mb-6">
+                      <div className="h-px w-20 bg-gradient-to-r from-transparent to-red-500" />
+                      <Icon name="Shield" className="text-red-500" size={32} />
+                      <div className="h-px w-20 bg-gradient-to-l from-transparent to-red-500" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-white uppercase tracking-[0.3em]">
+                      ДЕПАРТАМЕНТ БЕЗОПАСНОСТИ
+                    </h2>
+                    <p className="text-sm text-red-500 uppercase tracking-widest font-mono">
+                      OFFENSIVE SECURITY DIVISION
+                    </p>
+                  </div>
+                  <p className="text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                    Специализированное подразделение Eclipse Networks по выявлению и нейтрализации угроз информационной безопасности. Проведение пентестов, аудитов и операций по устранению конкурентных рисков.
                   </p>
                   <div className="flex gap-4 justify-center pt-6">
                     <Button
